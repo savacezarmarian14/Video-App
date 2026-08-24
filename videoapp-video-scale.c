@@ -2,11 +2,34 @@
 #include <stdlib.h>
 #include <gst/gst.h>
 
+
+struct Size {
+    int width;
+    int height;
+};
+
 int main(int argc, char **argv)
 {
-    gst_init(&argc, &argv);
+    struct Size scaleSize;
+    gboolean validScaleSizes = FALSE;
     gboolean gRet = FALSE;
+
+    gst_init(&argc, &argv);
     printf("[DEBUG] Gstreamer initialised\n");
+
+    if (argc >= 3) {
+        scaleSize.width = atoi(argv[1]);
+        scaleSize.height = atoi(argv[2]);
+        if (scaleSize.width > 0 && scaleSize.height > 0) {
+            validScaleSizes = TRUE;
+        }
+    }
+
+    if (FALSE == validScaleSizes) {
+        printf("[INFO] No valid scale sizes given. Taking 320x240");
+        scaleSize.width = 320;
+        scaleSize.height = 240;
+    }
 
     GstElement *pipeline = gst_pipeline_new("pipeline");
     if (NULL == pipeline) {
@@ -50,6 +73,26 @@ int main(int argc, char **argv)
     g_object_set(capsfilter, "caps", capsfilterValues, NULL);
     gst_caps_unref(capsfilterValues);
 
+
+    GstElement *scaler = gst_element_factory_make("videoscale", "video scaler");
+    if (NULL == scaler) {
+        printf("[ERROR] Couldn't create video scaler\n");
+        return -1;
+    }
+
+    GstElement *capsScaler = gst_element_factory_make("capsfilter", "scaler caps");
+    if (NULL == capsScaler) {
+        printf("[ERROR] Couldn't create caps scaler\n");
+        return -1;
+    }
+    GstCaps *capsScalerValues = gst_caps_new_simple("video/x-raw",
+        "format",    G_TYPE_STRING,     "YUY2",
+        "width",     G_TYPE_INT,        scaleSize.width,
+        "height",    G_TYPE_INT,        scaleSize.height,
+        NULL);
+    g_object_set(capsScaler, "caps", capsScalerValues, NULL);
+    gst_caps_unref(capsScalerValues);
+
     GstElement *screen = gst_element_factory_make("autovideosink", "video destination");
     if (NULL == screen) {
         printf("[ERROR] Couldn't create output element\n");
@@ -58,9 +101,9 @@ int main(int argc, char **argv)
 
     g_object_set(screen, "sync", FALSE, NULL);
 
-    gst_bin_add_many(GST_BIN(pipeline), src, capsfilter, convert, screen, NULL);
+    gst_bin_add_many(GST_BIN(pipeline), src, capsfilter, convert, scaler, capsScaler, screen, NULL);
 
-    gRet = gst_element_link_many(src, capsfilter, convert, screen, NULL);
+    gRet = gst_element_link_many(src, capsfilter, convert, scaler, capsScaler, screen, NULL);
     if (FALSE == gRet) {
         printf("[ERROR] Couldn't link elements in pipeline\n");
         gst_object_unref(pipeline);
