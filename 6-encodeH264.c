@@ -179,11 +179,11 @@ int main(int argc, char **argv)
 
     gst_bin_add_many(GST_BIN(pipeline), src, capsfilter, convert, scaler, capsScaler,
         invertorConverter, invertor, videoflip, encoderConverter, encoder, 
-        capsH264, decoder, decoderConverter, screen, NULL);
+        capsH264, parser, decoder, decoderConverter, screen, NULL);
 
     gRet = gst_element_link_many(src, capsfilter, convert, scaler, capsScaler,
         invertorConverter, invertor, videoflip, encoderConverter, encoder, 
-        capsH264, decoder, decoderConverter, screen, NULL);
+        capsH264, parser, decoder, decoderConverter, screen, NULL);
     if (FALSE == gRet) {
         printf("[ERROR] Couldn't link elements in pipeline\n");
         gst_object_unref(pipeline);
