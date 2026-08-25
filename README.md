@@ -44,7 +44,7 @@ make clean
 ## Run
 
 ```bash
-./7-file-save [OPTIONS]
+./video-app [OPTIONS]
 ```
 
 | Option | Short | Default | Description |
@@ -61,9 +61,9 @@ Flip values: `none`, `clockwise`, `rotate-180`, `counterclockwise`,
 Examples:
 
 ```bash
-./7-file-save
-./7-file-save -w 640 --height 480 -f horizontal-flip
-./7-file-save -d /dev/video2 -r /tmp/capture.mkv
+./video-app
+./video-app -w 640 --height 480 -f horizontal-flip
+./video-app -d /dev/video2 -r /tmp/capture.mkv
 ```
 
 Press **Ctrl+C** to stop. The application shuts down cleanly so the saved file
@@ -135,9 +135,9 @@ Each stage of the work is kept in a separate file:
 | `04-invert.c` | Colour inversion |
 | `05-flip.c` | Flip and command line options |
 | `6-encodeH264.c` | H.264 encoding |
-| `7-file-save.c` | Saving to file |
+| `video-app.c` | Saving to file |
 
-`7-file-save.c` is the final application.
+`video-app.c` is the final application.
 
 ---
 

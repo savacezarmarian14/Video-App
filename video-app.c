@@ -279,11 +279,9 @@ int main(int argc, char **argv)
     gplRet = gst_pad_link(teeRecordPad, recordQueuePad);
     if (gplRet != GST_PAD_LINK_OK) {
         printf("[ERROR] Couldn't link tee pad with queue pad for record branch\n");
+        return -1;
     }
     
-    // gRet = gst_element_link_many(src, capsfilter, convert, scaler, capsScaler,
-    //     invertorConverter, invertor, videoflip, encoderConverter, encoder, 
-    //     capsH264, parser, decoder, decoderConverter, screen, NULL);
     gRet = gst_element_link_many(src, capsfilter, convert, scaler, capsScaler,
         invertorConverter, invertor, videoflip, encoderConverter, encoder, capsH264,
         parser, tee, NULL);
@@ -305,7 +303,7 @@ int main(int argc, char **argv)
     /* RECORD */
     gRet = gst_element_link_many(recordQueue, mux, fileSink, NULL);
     if (FALSE == gRet) {
-        printf("[ERROR] [SCREEN BRANCH] Couldn't link elements in pipeline\n");
+        printf("[ERROR] [RECORD BRANCH] Couldn't link elements in pipeline\n");
         gst_object_unref(pipeline);
         return -1;
     }
